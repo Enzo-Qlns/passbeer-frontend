@@ -6,8 +6,14 @@ type CookieOptions = {
   sameSite?: "Strict" | "Lax" | "None";
 };
 
+function escapeRegex(str: string) {
+  return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 export const getCookie = (name: string): string | null => {
-  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${escapeRegex(name)}=([^;]*)`)
+  );
   return match ? decodeURIComponent(match[1]) : null;
 };
 
