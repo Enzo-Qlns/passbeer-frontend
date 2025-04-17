@@ -1,0 +1,10 @@
+services:
+  frontend:
+    image: passbeer-frontend:latest
+    container_name: passbeer-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8080:80
