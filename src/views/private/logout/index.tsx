@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
-// Services
-import authService from "@/api/auth";
-
 // Components
 import Loader from "@/components/ui/loader";
 
@@ -17,14 +14,11 @@ const LogoutPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        authService.logout()
-            .finally(() => {
-                clearToken();
-                setTimeout(() => {
-                    navigate(routes.publicRoutes.HOME, { replace: true });
-                    window.location.reload();
-                }, 100);
-            })
+        clearToken();
+        setTimeout(() => {
+            navigate(routes.publicRoutes.HOME, { replace: true });
+            window.location.reload();
+        }, 100);
         // eslint-disable-next-line
     }, []);
 

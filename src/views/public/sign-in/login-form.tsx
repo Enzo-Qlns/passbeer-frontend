@@ -45,38 +45,26 @@ export function LoginForm({
     const form = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: "emilys",
-            password: "emilyspass"
+            email: "",
+            password: ""
         },
     })
 
     const onSubmit = async (data: LoginFormData) => {
         setLoading(true)
 
-        await authService.authenticate(data.email, data.password)
+        await authService.login(data.email, data.password)
             .then(async (response) => {
-                api.defaults.headers.common["Authorization"] = `Bearer ${response.data.accessToken}`
-                setToken(response.data.accessToken as string, response.data.refreshToken as string)
+                api.defaults.headers.common["Authorization"] = `Bearer ${response.access_token}`
+                setToken(response.access_token as string)
                 await getMe()
             })
             .catch((error) => {
-                if (error.response?.data?.message) {
-                    if (error.response.data.message.includes("email")) {
-                        form.setError("email", {
-                            type: "server",
-                            message: error.response.data.message
-                        })
-                    } else if (error.response.data.message.includes("password")) {
-                        form.setError("password", {
-                            type: "server",
-                            message: error.response.data.message
-                        })
-                    } else {
-                        form.setError("root", {
-                            type: "server",
-                            message: error.response.data.message
-                        })
-                    }
+                if (error.response.status === 401) {
+                    form.setError("root", {
+                        type: "server",
+                        message: "Email ou mot de passe incorrect"
+                    })
                 } else {
                     form.setError("root", {
                         type: "server",

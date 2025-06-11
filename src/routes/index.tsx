@@ -14,6 +14,7 @@ import Loader from "@/components/ui/loader";
 // Helpers
 import { routes } from "@/data";
 import { ProtectedRoute } from "./protected";
+import ProfilePage from '@/views/private/profile';
 
 
 // Public Page
@@ -25,7 +26,7 @@ const PublicSignIUpPage = React.lazy(() => import('@/views/public/sign-up'));
 // Private Pages
 const LogoutPage = React.lazy(() => import('@/views/private/logout'));
 const PrivateHomePage = React.lazy(() => import('@/views/private/home'));
-const PrivateMonComptePage = React.lazy(() => import('@/views/private/mon-compte'));
+const PrivateVaultPage = React.lazy(() => import('@/views/private/vault'));
 
 const Routes = () => {
     const { token } = useAuth();
@@ -80,13 +81,23 @@ const Routes = () => {
                     </Suspense>
                 },
                 {
-                    path: routes.privateRoutes.MON_COMPTE,
+                    path: routes.privateRoutes.VAULT,
                     element: <Suspense
                         fallback={
                             <Loader className="absolute top-1/3 left-1/2" />
                         }
                     >
-                        <PrivateMonComptePage />
+                        <PrivateVaultPage />
+                    </Suspense>
+                },
+                {
+                    path: routes.privateRoutes.PROFILE,
+                    element: <Suspense
+                        fallback={
+                            <Loader className="absolute top-1/3 left-1/2" />
+                        }
+                    >
+                        <ProfilePage />
                     </Suspense>
                 },
             ],

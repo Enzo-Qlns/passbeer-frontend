@@ -44,7 +44,6 @@ const SignIUpPage = (): JSX.Element => {
                     <LoginPlaceholder />
                 </div>
             </div>
-            {/* <SignUpForm /> */}
         </motion.div>
     );
 }

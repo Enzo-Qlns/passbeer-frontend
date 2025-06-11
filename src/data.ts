@@ -12,7 +12,8 @@ const routes = {
     HISTORY: "/history",
     SHARED: "/shared",
     LOGOUT: "/logout",
-    MON_COMPTE: "/mon-compte",
+    VAULT: "/vault/:id",
+    PROFILE: "/profile",
   },
 };
 

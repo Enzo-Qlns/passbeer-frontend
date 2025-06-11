@@ -1,4 +1,7 @@
-import { createContext, useState, ReactNode } from "react";
+import {
+    useState,
+    ReactNode
+} from "react";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -10,15 +13,11 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type AlertDialogOptions = {
-    title: string;
-    description: string;
-    onConfirm?: () => void;
-};
-
-type AlertDialogContextType = (options: AlertDialogOptions) => void;
-
-export const AlertDialogContext = createContext<AlertDialogContextType | undefined>(undefined);
+import {
+    AlertDialogOptions,
+    AlertDialogContextType,
+    AlertDialogContext
+} from "@/contexts/alert-dialog";
 
 export function AlertDialogProvider({ children }: { children: ReactNode }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -35,18 +34,20 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
             <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{dialogOptions?.title}</AlertDialogTitle>
-                        <AlertDialogDescription>{dialogOptions?.description}</AlertDialogDescription>
+                        <AlertDialogTitle className="text-2xl font-playfair font-medium text-campus-dark">{dialogOptions?.title}</AlertDialogTitle>
+                        <AlertDialogDescription className="text-base text-campus-dark">{dialogOptions?.description}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setIsOpen(false)}>Annuler</AlertDialogCancel>
+                        <AlertDialogCancel onClick={() => setIsOpen(false)}>
+                            {dialogOptions?.cancelText || "Annuler"}
+                        </AlertDialogCancel>
                         <AlertDialogAction
                             onClick={() => {
                                 if (dialogOptions?.onConfirm) dialogOptions.onConfirm();
                                 setIsOpen(false);
                             }}
                         >
-                            Continue
+                            {dialogOptions?.confirmText || "Continuer"}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

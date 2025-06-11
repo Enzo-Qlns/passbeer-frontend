@@ -3,52 +3,51 @@ import { AxiosError } from "axios";
 import api from ".";
 
 import { Password, PasswordHistory } from "@/types/password";
+import { API_ENDPOINTS } from './constants';
+import { PasswordCreate, PasswordUpdate } from '../types/api';
+
+export const getPasswords = async (): Promise<Password[]> => {
+  const response = await api.get<Password[]>(API_ENDPOINTS.PASSWORDS);
+  return response.data;
+};
+
+export const getPassword = async (id: number): Promise<Password> => {
+  const response = await api.get<Password>(`${API_ENDPOINTS.PASSWORDS}/${id}`);
+  return response.data;
+};
+
+export const createPassword = async (data: PasswordCreate): Promise<Password> => {
+  const response = await api.post<Password>(API_ENDPOINTS.PASSWORDS, data);
+  return response.data;
+};
+
+export const updatePassword = async (id: number, data: PasswordUpdate): Promise<Password> => {
+  const response = await api.put<Password>(`${API_ENDPOINTS.PASSWORDS}/${id}`, data);
+  return response.data;
+};
+
+export const deletePassword = async (id: number): Promise<void> => {
+  await api.delete(`${API_ENDPOINTS.PASSWORDS}/${id}`);
+};
+
+export const getPasswordHistory = async (id: number): Promise<Password[]> => {
+  const response = await api.get<Password[]>(`${API_ENDPOINTS.PASSWORDS}/${id}/history`);
+  return response.data;
+};
+
+export const getVaultPasswords = async (vaultId: number): Promise<Password[]> => {
+  const response = await api.get<Password[]>(`${API_ENDPOINTS.VAULTS}/${vaultId}/passwords`);
+  return response.data;
+};
 
 const passwordService = {
-  /**
-   * Get all passwords
-   * @returns {Array<Password> | AxiosError}
-   */
-  getPasswords: async (): Promise<Array<Password> | AxiosError> =>
-    await api.get("/passwords"),
-
-  /**
-   * Get a password by id
-   * @param pw_id
-   * @returns {Password | AxiosError}
-   */
-  getPassword: async (
-    pw_id: Password["id"]
-  ): Promise<{ password: Password; history: PasswordHistory } | AxiosError> =>
-    await api.get(`/passwords/${pw_id}`),
-
-  /**
-   * Delete password by id
-   * @param pw_id
-   * @returns {void}
-   */
-  deletePassword: async (pw_id: Password["id"]): Promise<void> =>
-    await api.delete(`/passwords/${pw_id}`),
-
-  /**
-   * Add password
-   * @param pw_id Password id
-   * @returns {Password | AxiosError}
-   */
-  addPassword: async (password: Password): Promise<Password | AxiosError> =>
-    await api.post("/passwords", password),
-
-  /**
-   * Update password
-   * @param pw_id Password id
-   * @param password Password object
-   * @returns {Password | AxiosError}
-   */
-  updatePassword: async (
-    pw_id: Password["id"],
-    password: Password
-  ): Promise<Password | AxiosError> =>
-    await api.put(`/passwords/${pw_id}`, password),
+  getPasswords,
+  getPassword,
+  createPassword,
+  updatePassword,
+  deletePassword,
+  getPasswordHistory,
+  getVaultPasswords,
 
   /**
    * Get password share

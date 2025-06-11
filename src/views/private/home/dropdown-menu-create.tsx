@@ -14,7 +14,7 @@ import { useVault } from "@/hooks/use-vault"
 const DropdownMenuCreate = (): JSX.Element => {
     const {
         setNewPasswordDialogOpen,
-        setNewFolderDialogOpen
+        setNewVaultDialogOpen
     } = useVault()
     return (
         <DropdownMenu>
@@ -26,8 +26,8 @@ const DropdownMenuCreate = (): JSX.Element => {
                     <DropdownMenuItem onClick={() => setNewPasswordDialogOpen(true)}>
                         Mot de passe
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setNewFolderDialogOpen(true)}>
-                        Dossier
+                    <DropdownMenuItem onClick={() => setNewVaultDialogOpen(true)}>
+                        Coffre-fort
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>

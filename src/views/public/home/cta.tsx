@@ -5,7 +5,7 @@ import { Link } from "react-router";
 const Cta = (): JSX.Element => {
     return (
         <section className="mx-auto max-w-7xl py-24 sm:px-6 sm:py-32 lg:px-8">
-            <div className="relative isolate overflow-hidden bg-gray-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
+            <div className="relative isolate overflow-hidden bg-yellow-900/20 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16">
                 <h2 className="text-4xl font-semibold tracking-tight text-balance text-white sm:text-5xl">
                     Gérer vos mots de passe n’a jamais été aussi simple
                 </h2>
@@ -28,8 +28,8 @@ const Cta = (): JSX.Element => {
                     <circle r={512} cx={512} cy={512} fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)" fillOpacity="0.7" />
                     <defs>
                         <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
-                            <stop stopColor="#7775D6" />
-                            <stop offset={1} stopColor="#E935C1" />
+                            <stop stopColor="var(--color-yellow-600)" />
+                            <stop offset={1} stopColor="var(--color-yellow-600)" />
                         </radialGradient>
                     </defs>
                 </svg>

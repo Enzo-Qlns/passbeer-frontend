@@ -5,34 +5,30 @@ import {
     useEffect,
 } from "react";
 
-import axios from "axios";
-
 import { DOMAIN } from "@/api/constants";
-import profileService from "@/api/profile";
+import authService from "@/api/auth";
 
 import { deleteCookie, getCookie, setCookie } from "@/lib/cookies";
 
 import { AuthContext } from "@/contexts/auth";
 
-import { User } from "@/types/user";
+import { User } from "@/types/api";
 
 // Types
 type AuthState = {
     token: string | null;
-    refreshToken: string | null;
     user: User | null;
 };
 
 type AuthAction =
-    | { type: "setToken"; payload: { token: string; refreshToken: string } }
+    | { type: "setToken"; payload: { token: string } }
     | { type: "clearToken" }
     | { type: "setUser"; payload: User };
 
 type AuthContextType = AuthState & {
-    setToken: (newToken: string, newRefreshToken: string) => void;
+    setToken: (newToken: string) => void;
     clearToken: () => void;
     setUser: (user: User) => void;
-    refreshAccessToken: () => Promise<void>;
 };
 
 export type { AuthContextType };
@@ -46,30 +42,22 @@ const ACTIONS = {
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     switch (action.type) {
         case ACTIONS.setToken: {
-            const { token, refreshToken } = action.payload;
+            const { token } = action.payload;
 
-            axios.defaults.headers.common["Authorization"] = "Bearer " + token;
             setCookie("token", token.toString(), {
                 domain: DOMAIN,
                 secure: window.location.protocol === "https:",
                 sameSite: "Lax"
             });
-            setCookie("refreshToken", refreshToken.toString(), {
-                domain: DOMAIN,
-                secure: window.location.protocol === "https:",
-                sameSite: "Lax"
-            });
 
-            return { ...state, token, refreshToken };
+            return { ...state, token };
         }
 
         case ACTIONS.clearToken:
-            delete axios.defaults.headers.common["Authorization"];
             deleteCookie("token", "/", DOMAIN);
-            deleteCookie("refreshToken", "/", DOMAIN);
             localStorage.removeItem("user");
 
-            return { ...state, token: null, refreshToken: null, user: null };
+            return { ...state, token: null, user: null };
 
         case ACTIONS.setUser:
             localStorage.setItem("user", JSON.stringify(action.payload));
@@ -83,7 +71,6 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
 const initialData: AuthState = {
     token: getCookie('token') || null,
-    refreshToken: getCookie('refreshToken') || null,
     user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user") as string) : null,
 };
 
@@ -94,8 +81,8 @@ type AuthProviderProps = {
 const AuthProvider = ({ children }: AuthProviderProps) => {
     const [state, dispatch] = useReducer(authReducer, initialData);
 
-    const setToken = (newToken: string, newRefreshToken: string) => {
-        dispatch({ type: ACTIONS.setToken, payload: { token: newToken, refreshToken: newRefreshToken } });
+    const setToken = (newToken: string) => {
+        dispatch({ type: ACTIONS.setToken, payload: { token: newToken } });
     };
 
     const clearToken = () => {
@@ -106,30 +93,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
         dispatch({ type: ACTIONS.setUser, payload: user });
     };
 
-    const refreshAccessToken = async () => {
-        if (!state.refreshToken) {
-            console.error("No refresh token available to refresh access token.");
-            return;
-        }
-
-        try {
-            const response = await axios.post("/auth/refresh", {
-                refreshToken: state.refreshToken,
-            });
-
-            const { token, refreshToken } = response.data;
-            setToken(token, refreshToken);
-        } catch (error) {
-            console.error("Failed to refresh access token:", error);
-            clearToken();
-        }
-    };
-
     useEffect(() => {
         if (state.token) {
-            profileService.getMe()
-                .then((response) => {
-                    const user = response.data as User;
+            authService.getCurrentUser()
+                .then((user) => {
                     setUser(user);
                 })
                 .catch(() => {
@@ -145,7 +112,6 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
             setToken,
             clearToken,
             setUser,
-            refreshAccessToken,
         }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         [state]

@@ -1,33 +1,65 @@
 import { JSX, useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import { Copy, Edit, Share } from "lucide-react";
 
 import { ContentLayout } from "@/components/private/content-layout";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Button } from "@/components/ui/button";
-import DropdownMenuCreate from "./dropdown-menu-create";
-import { DataTablePassword } from "./data-table-password";
+import DropdownMenuCreate from "../home/dropdown-menu-create";
+import { DataTablePassword } from "../home/data-table-password";
 import passwordService from "@/api/password";
+import vaultService from "@/api/vault";
 import { useVault } from "@/hooks/use-vault";
 
-const HomePage = (): JSX.Element => {
+const VaultPage = (): JSX.Element => {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
-    const { setPasswords, passwords } = useVault();
+    const [error, setError] = useState<string | null>(null);
+    const {
+        setSelectedVault,
+        passwords,
+        setPasswords,
+    } = useVault();
 
     useEffect(() => {
-        const fetchPasswords = async () => {
+        const fetchData = async () => {
             try {
-                const data = await passwordService.getPasswords();
+                // Vérifier d'abord si le vault existe
+                await vaultService.getVault(Number(id));
+                // Si oui, charger les mots de passe
+                const data = await passwordService.getVaultPasswords(Number(id));
                 setPasswords(data || []);
+                setError(null);
+                setSelectedVault(Number(id));
             } catch (error) {
-                console.error("Error fetching passwords:", error);
+                console.error("Error fetching vault data:", error);
+                setError("Coffre-fort introuvable");
                 setPasswords([]);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchPasswords();
-    }, []);
+        fetchData();
+    }, [id]);
+
+    if (error) {
+        return (
+            <ContentLayout>
+                <div className="text-center py-8">
+                    <h2 className="text-xl font-semibold text-gray-200 mb-2">{error}</h2>
+                    <Button
+                        variant="outline"
+                        onClick={() => navigate("/")}
+                        className="mt-4"
+                    >
+                        Retour à l'accueil
+                    </Button>
+                </div>
+            </ContentLayout>
+        );
+    }
 
     return (
         <ContentLayout>
@@ -57,4 +89,4 @@ const HomePage = (): JSX.Element => {
     );
 };
 
-export default HomePage;
+export default VaultPage; 

@@ -7,8 +7,9 @@ import { Link, useLocation } from "react-router";
 import { motion } from "framer-motion";
 import {
     ChevronsRight,
-    CircleUserRound,
+    LogOut,
     LucideIcon,
+    Folder,
 } from "lucide-react";
 
 import {
@@ -17,9 +18,66 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import logo from "@/assets/img/logo.png";
+import { useAuth } from "@/hooks/use-auth";
+import { useVault } from "@/hooks/use-vault";
 
 import { navList, routes } from "@/data";
+
+import logo from "@/assets/img/logo.png";
+
+const VaultList = ({ open }: { open: boolean }) => {
+    const { vaults } = useVault();
+    const location = useLocation();
+
+    return (
+        <div className="space-y-1 mt-4">
+            <div className="px-2 text-xs font-semibold text-gray-400">
+                {open ? "Coffres-forts" : ""}
+            </div>
+            {vaults.length === 0 ? (
+                <div className="px-2 text-xs text-gray-400">
+                    {open ? "Aucun coffre-fort" : ""}
+                </div>
+            ) : (
+                vaults.map((vault) => {
+                    const isSelected = location.pathname === `/vault/${vault.id}`;
+                    return (
+                        <Tooltip key={vault.id}>
+                            <TooltipTrigger asChild>
+                                <motion.button
+                                    layout
+                                    className={`relative flex h-10 w-full items-center rounded-md transition-colors cursor-pointer ${isSelected ? "bg-yellow-600 text-white" : "text-white hover:bg-stone-900"}`}
+                                >
+                                    <Link to={`/vault/${vault.id}`} className="w-full h-full flex items-center gap-2">
+                                        <motion.div
+                                            layout
+                                            className="grid h-full w-10 place-content-center text-lg"
+                                        >
+                                            <Folder />
+                                        </motion.div>
+                                        {open && (
+                                            <motion.span
+                                                layout
+                                                className="text-xs font-medium"
+                                            >
+                                                {vault.name}
+                                            </motion.span>
+                                        )}
+                                    </Link>
+                                </motion.button>
+                            </TooltipTrigger>
+                            {!open && (
+                                <TooltipContent side="right">
+                                    <p>{vault.name}</p>
+                                </TooltipContent>
+                            )}
+                        </Tooltip>
+                    );
+                })
+            )}
+        </div>
+    );
+};
 
 const Sidebar = () => {
     const [open, setOpen_] = useState(localStorage.getItem("sidebar") ? JSON.parse(localStorage.getItem("sidebar")!) : true);
@@ -51,12 +109,14 @@ const Sidebar = () => {
                 ))}
             </div>
 
+            <VaultList open={open} />
+
             <div className="absolute bottom-16 left-0 right-0 p-2">
                 <Option
-                    Icon={CircleUserRound}
-                    title="Mon compte"
+                    Icon={LogOut}
+                    title="Se déconnecter"
                     open={open}
-                    href={routes.privateRoutes.MON_COMPTE}
+                    href={routes.privateRoutes.LOGOUT}
                 />
             </div>
 
@@ -130,6 +190,7 @@ const Option = ({
 };
 
 const TitleSection = ({ open }: { open: boolean }) => {
+    const { user } = useAuth();
     return (
         <div className="mb-3 border-b border-slate-300 pb-3">
             <div className="flex items-center justify-between rounded-md transition-colors hover:bg-stone-950">
@@ -141,6 +202,9 @@ const TitleSection = ({ open }: { open: boolean }) => {
                         >
                             <span className="block text-lg font-semibold">
                                 PassBeer
+                            </span>
+                            <span className="block text-xs font-medium">
+                                {user?.email}
                             </span>
                         </motion.div>
                     )}

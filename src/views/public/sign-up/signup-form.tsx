@@ -1,7 +1,9 @@
-import { JSX } from "react"
+import { JSX, useState } from "react"
+import { useNavigate } from "react-router"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -16,16 +18,22 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
+import authService from "@/api/auth"
+
+import { routes } from "@/data"
+
 const SignUpSchema = z.object({
     email: z.string().email({ message: "Adresse email invalide." }),
-    password: z.string().min(6, { message: "Le mot de passe doit faire au moins 6 caractères." }),
-    confirmPassword: z.string().min(6, { message: "La confirmation doit faire au moins 6 caractères." }),
+    password: z.string().min(8, { message: "Le mot de passe doit faire au moins 8 caractères." }),
+    confirmPassword: z.string().min(8, { message: "La confirmation doit faire au moins 8 caractères." }),
 }).refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Les mots de passe ne correspondent pas.",
 })
 
 const SignupForm = (): JSX.Element => {
+    const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
     const form = useForm<z.infer<typeof SignUpSchema>>({
         resolver: zodResolver(SignUpSchema),
         defaultValues: {
@@ -35,14 +43,29 @@ const SignupForm = (): JSX.Element => {
         },
     })
 
-    function onSubmit(data: z.infer<typeof SignUpSchema>) {
-        toast.success("Inscription réussie ! 🎉", {
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        })
+    async function onSubmit(data: z.infer<typeof SignUpSchema>) {
+        setLoading(true)
+        await authService.register(data.email, data.password)
+            .then(() => {
+                toast.success("Inscription réussie ! 🎉")
+                navigate(routes.publicRoutes.SIGNIN)
+            })
+            .catch((error) => {
+                if (error.response.status === 400) {
+                    form.setError("root", {
+                        type: "server",
+                        message: "Email ou mot de passe incorrect"
+                    })
+                } else {
+                    form.setError("root", {
+                        type: "server",
+                        message: "Une erreur est survenue lors de l'inscription"
+                    })
+                }
+            })
+            .finally(() => {
+                setLoading(false)
+            })
     }
 
     return (
@@ -72,7 +95,7 @@ const SignupForm = (): JSX.Element => {
                             <FormControl>
                                 <Input placeholder="••••••••" type="password" {...field} />
                             </FormControl>
-                            <FormDescription>Minimum 6 caractères.</FormDescription>
+                            <FormDescription>Minimum 8 caractères.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -92,7 +115,9 @@ const SignupForm = (): JSX.Element => {
                     )}
                 />
 
-                <Button type="submit">S'inscrire</Button>
+                <Button type="submit" disabled={loading}>
+                    {loading ? <Loader2 className="size-4 animate-spin" /> : "S'inscrire"}
+                </Button>
             </form>
         </Form>
     )

@@ -1,7 +1,12 @@
+import { Vault } from "./vault";
+
 type Password = {
   id: number;
   name: string;
+  vault_id: Vault['id'];
   password: string;
+  comment: string;
+  url: string;
   created_at: string;
   updated_at: string;
 };
