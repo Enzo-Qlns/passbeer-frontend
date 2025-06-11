@@ -10,6 +10,7 @@ import { DataTablePassword } from "../home/data-table-password";
 import passwordService from "@/api/password";
 import vaultService from "@/api/vault";
 import { useVault } from "@/hooks/use-vault";
+import useCrypto from "@/hooks/use-crypto";
 
 const VaultPage = (): JSX.Element => {
     const { id } = useParams();
@@ -21,6 +22,7 @@ const VaultPage = (): JSX.Element => {
         passwords,
         setPasswords,
     } = useVault();
+    const { decryptData } = useCrypto();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -29,7 +31,10 @@ const VaultPage = (): JSX.Element => {
                 await vaultService.getVault(Number(id));
                 // Si oui, charger les mots de passe
                 const data = await passwordService.getVaultPasswords(Number(id));
-                setPasswords(data || []);
+                setPasswords(data.map((password) => ({
+                    ...password,
+                    password: decryptData(password.password).data as string
+                })) || []);
                 setError(null);
                 setSelectedVault(Number(id));
             } catch (error) {

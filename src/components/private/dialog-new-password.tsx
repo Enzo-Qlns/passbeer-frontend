@@ -25,6 +25,7 @@ import {
 
 import { useVault } from "@/hooks/use-vault"
 import passwordService from "@/api/password"
+import useCrypto from "@/hooks/use-crypto"
 
 const passwordSchema = z.object({
     name: z.string().min(1, "Le nom d'utilisateur est requis"),
@@ -37,6 +38,7 @@ const passwordSchema = z.object({
 type PasswordFormData = z.infer<typeof passwordSchema>
 
 const DialogNewPassword = (): JSX.Element => {
+    const { encryptData } = useCrypto()
 
     const {
         newPasswordDialogOpen,
@@ -68,7 +70,7 @@ const DialogNewPassword = (): JSX.Element => {
         try {
             const response = await passwordService.createPassword({
                 name: data.name,
-                password: data.password,
+                password: encryptData(data.password).data as string,
                 url: data.url || "",
                 comment: data.comment || "",
                 vault_id: data.vault_id

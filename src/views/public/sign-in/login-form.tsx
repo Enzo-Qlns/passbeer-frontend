@@ -24,6 +24,8 @@ import api from "@/api"
 import { cn } from "@/lib/utils"
 
 import { routes } from "@/data"
+import useCrypto from "@/hooks/use-crypto"
+import { setCookie } from "@/lib/cookies"
 
 const loginSchema = z.object({
     email: z.string().min(1, "L'email est requis"),
@@ -42,6 +44,8 @@ export function LoginForm({
         setUser
     } = useAuth()
 
+    const { encryptData } = useCrypto()
+
     const form = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -57,6 +61,8 @@ export function LoginForm({
             .then(async (response) => {
                 api.defaults.headers.common["Authorization"] = `Bearer ${response.access_token}`
                 setToken(response.access_token as string)
+                const encryptedPassword = encryptData(data.password)
+                setCookie("encryptionKey", encryptedPassword.data as string)
                 await getMe()
             })
             .catch((error) => {

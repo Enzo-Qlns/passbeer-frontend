@@ -14,8 +14,6 @@ import Loader from "@/components/ui/loader";
 // Helpers
 import { routes } from "@/data";
 import { ProtectedRoute } from "./protected";
-import ProfilePage from '@/views/private/profile';
-
 
 // Public Page
 const NotFound = React.lazy(() => import('@/views/errors/not-found'));
@@ -88,16 +86,6 @@ const Routes = () => {
                         }
                     >
                         <PrivateVaultPage />
-                    </Suspense>
-                },
-                {
-                    path: routes.privateRoutes.PROFILE,
-                    element: <Suspense
-                        fallback={
-                            <Loader className="absolute top-1/3 left-1/2" />
-                        }
-                    >
-                        <ProfilePage />
                     </Suspense>
                 },
             ],

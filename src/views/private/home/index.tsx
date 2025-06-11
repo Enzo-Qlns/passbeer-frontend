@@ -8,16 +8,25 @@ import DropdownMenuCreate from "./dropdown-menu-create";
 import { DataTablePassword } from "./data-table-password";
 import passwordService from "@/api/password";
 import { useVault } from "@/hooks/use-vault";
+import useCrypto from "@/hooks/use-crypto";
 
 const HomePage = (): JSX.Element => {
     const [loading, setLoading] = useState(true);
     const { setPasswords, passwords } = useVault();
+    const { decryptData } = useCrypto();
 
     useEffect(() => {
         const fetchPasswords = async () => {
             try {
                 const data = await passwordService.getPasswords();
-                setPasswords(data || []);
+                console.log(data.map((password) => ({
+                    ...password,
+                    password: decryptData(password.password).data as string
+                })) || [])
+                setPasswords(data.map((password) => ({
+                    ...password,
+                    password: decryptData(password.password).data as string
+                })) || []);
             } catch (error) {
                 console.error("Error fetching passwords:", error);
                 setPasswords([]);
